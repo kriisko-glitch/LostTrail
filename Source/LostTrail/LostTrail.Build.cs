@@ -36,6 +36,7 @@ public class LostTrail : ModuleRules
 		PublicIncludePaths.AddRange(new string[]
 		{
 			"LostTrail",
+			"LostTrail/Public",
 			"LostTrail/Public/Dog",
 			"LostTrail/Public/Survival",
 			"LostTrail/Public/Translator",
