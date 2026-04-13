@@ -3,4 +3,4 @@
 #include "Modules/ModuleManager.h"
 
 DEFINE_LOG_CATEGORY(LogLostTrail);
-IMPLEMENT_PRIMARY_GAME_MODULE(FDefaultGameModuleImpl, LostTrail, "LostTrail");
+IMPLEMENT_MODULE(FDefaultGameModuleImpl, LostTrail);
