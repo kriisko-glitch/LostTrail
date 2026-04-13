@@ -14,6 +14,7 @@ ATrailDogCharacter::ATrailDogCharacter()
 	PrimaryActorTick.bCanEverTick = true;
 
 	BrainComponent = CreateDefaultSubobject<UTrailDogBrain>(TEXT("DogBrain"));
+	VoiceComponent = CreateDefaultSubobject<UDogVoiceComponent>(TEXT("DogVoice"));
 
 	// Don't auto-possess — let the GameMode assign an AI controller
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;

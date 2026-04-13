@@ -2,6 +2,7 @@
 
 #include "LostTrailSubsystem.h"
 #include "Dog/TrailDogCharacter.h"
+#include "Dog/DogVoiceComponent.h"
 #include "Translator/TranslatorOverlayWidget.h"
 #include "LostTrail.h"
 #include "GameFramework/PlayerController.h"
@@ -116,7 +117,15 @@ void ULostTrailSubsystem::Tick(float DeltaTime)
 		{
 			OverlayWidget->HideChat();
 		}
-		// TODO: StartVoiceInput() when DogVoiceComponent is wired
+		// Start voice recording on the dog
+		if (CachedDog)
+		{
+			UDogVoiceComponent* Voice = CachedDog->FindComponentByClass<UDogVoiceComponent>();
+			if (Voice && !Voice->IsRecording())
+			{
+				Voice->StartVoiceChat();
+			}
+		}
 	}
 	bVKeyWasDown = bVKeyDown;
 }

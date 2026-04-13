@@ -16,6 +16,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Dog/TrailDogBrain.h"
+#include "Dog/DogVoiceComponent.h"
 #include "Translator/TranslatorComponent.h"
 #include "CombatDamageable.h"
 #include "TrailDogCharacter.generated.h"
@@ -48,6 +49,9 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Dog")
 	UTrailDogBrain* BrainComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Dog")
+	UDogVoiceComponent* VoiceComponent;
 
 	// --- Cached references (set in BeginPlay) ---
 
