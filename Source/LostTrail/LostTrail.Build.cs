@@ -25,5 +25,21 @@ public class LostTrail : ModuleRules
 			"NavigationSystem",
 			"GameplayTags"
 		});
+
+		PrivateDependencyModuleNames.AddRange(new string[]
+		{
+			"TP_ThirdPerson"
+		});
+
+		// Module root contains LostTrail.h (log category). Subdirectories match
+		// the same layout as TP_ThirdPerson's explicit include paths.
+		PublicIncludePaths.AddRange(new string[]
+		{
+			"LostTrail",
+			"LostTrail/Public/Dog",
+			"LostTrail/Public/Survival",
+			"LostTrail/Public/Translator",
+			"LostTrail/Public/World"
+		});
 	}
 }

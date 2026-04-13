@@ -2,14 +2,15 @@
 //
 // UTrailDogBrain
 // --------------
-// Evolution of DogCompanion's UDogBrainComponent for the survival context.
-// Same core pattern: async HTTP to local Qwen 0.8B, compact state snapshot,
-// single-line response. New: the SPEAK channel for translator phrases.
+// LLM-driven dog brain for survival game. Uses Groq API with JSON response format.
+// Adapted from NeonPatrol's SparkBrainComponent (proven pattern).
 //
-// Response format:  ACTION [x,y,z] | SPEAK phrase
-// Example:          FOLLOW | SPEAK WATER CLOSE
-// Example:          FLEE 100,200,0 | SPEAK SCARED
-// Example:          INVESTIGATE 50,0,0 | SPEAK NONE
+// Response format (JSON):
+//   {"action":"FOLLOW", "speak":"WATER CLOSE", "target":[100,200,0]}
+//
+// Actions: FOLLOW, WAIT, WANDER, INVESTIGATE, SCOUT, FLEE, FIGHT, SIT
+// Speak: a phrase from the translator vocabulary, or "NONE"
+// Target: optional [x,y,z] coordinates relative to dog
 
 #pragma once
 
@@ -94,16 +95,33 @@ class LOSTTRAIL_API UTrailDogBrain : public UActorComponent
 public:
 	UTrailDogBrain();
 
+	// --- Groq API configuration ---
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="DogBrain")
-	FString EndpointUrl = TEXT("http://127.0.0.1:11001/v1/chat/completions");
+	FString EndpointUrl = TEXT("https://api.groq.com/openai/v1/chat/completions");
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="DogBrain")
+	FString ModelName = TEXT("llama-3.3-70b-versatile");
+
+	UPROPERTY(VisibleAnywhere, Category="DogBrain")
+	FString ApiKey;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="DogBrain")
+	FString ApiKeyFilePath = TEXT("C:/Users/Kris/Kriisko-Studio/tools/.groq_key");
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="DogBrain")
 	float PollIntervalSeconds = 0.25f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="DogBrain")
-	float RequestTimeoutSeconds = 2.f;
+	float RequestTimeoutSeconds = 5.f;
 
-	/** Current translator level — affects which phrases appear in the system prompt. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="DogBrain")
+	int32 MaxTokens = 64;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="DogBrain")
+	float Temperature = 0.7f;
+
+	/** Current translator level -- affects which phrases appear in the system prompt. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="DogBrain")
 	int32 TranslatorLevel = 0;
 
@@ -113,9 +131,16 @@ public:
 	UFUNCTION(BlueprintCallable, Category="DogBrain")
 	void RequestDecision(const FTrailDogState& State);
 
-	/** Parse "ACTION [x,y,z] | SPEAK phrase" format. */
-	static void ParseResponse(const FString& Raw, ETrailDogAction& OutAction,
+	/** Send a direct chat message (from player voice/text). */
+	UFUNCTION(BlueprintCallable, Category="DogBrain")
+	void SendChat(const FString& PlayerMessage);
+
+	/** Parse JSON response: {"action":"...", "speak":"...", "target":[x,y,z]} */
+	static void ParseJsonResponse(const FString& Raw, ETrailDogAction& OutAction,
 		FVector& OutTarget, bool& bOutHasTarget, FString& OutPhrase);
+
+	/** Strip markdown code blocks and extract JSON object. */
+	static FString StripMarkdownAndExtractJson(const FString& Raw);
 
 	static FString FormatStateLine(const FTrailDogState& State);
 
@@ -131,6 +156,7 @@ private:
 	double RequestStartSeconds = 0.0;
 	FTrailDogState PendingState;
 
+	void SendHttpRequest(const FString& UserContent);
 	void OnHttpComplete(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bSuccess);
 
 	static ETrailDogAction KeywordToAction(const FString& Word);

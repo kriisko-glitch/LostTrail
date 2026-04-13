@@ -11,5 +11,6 @@ public class TP_ThirdPersonTarget : TargetRules
 		DefaultBuildSettings = BuildSettingsVersion.V5;
 		IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_6;
 		ExtraModuleNames.Add("TP_ThirdPerson");
+		ExtraModuleNames.Add("LostTrail");
 	}
 }
