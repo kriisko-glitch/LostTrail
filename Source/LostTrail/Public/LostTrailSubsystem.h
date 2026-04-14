@@ -18,6 +18,7 @@
 #include "LostTrailSubsystem.generated.h"
 
 class ATrailDogCharacter;
+class AForestWorldPopulator;
 class UTranslatorOverlayWidget;
 
 UCLASS()
@@ -57,6 +58,7 @@ private:
 
 	void EnsurePlayerComponents();
 	void EnsureDogExists();
+	void EnsureForestExists();
 	void EnforceLeash();
 	ATrailDogCharacter* FindDog() const;
 };

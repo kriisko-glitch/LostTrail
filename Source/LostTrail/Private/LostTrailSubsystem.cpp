@@ -7,6 +7,7 @@
 #include "UI/SurvivalHUDWidget.h"
 #include "Translator/TranslatorComponent.h"
 #include "Survival/SurvivalComponent.h"
+#include "World/ForestWorldPopulator.h"
 #include "LostTrail.h"
 #include "GameFramework/PlayerController.h"
 #include "Blueprint/UserWidget.h"
@@ -67,10 +68,11 @@ void ULostTrailSubsystem::Tick(float DeltaTime)
 		EnsurePlayerComponents();
 	}
 
-	// Auto-spawn dog
+	// Auto-spawn dog and forest
 	if (!bDogSpawned)
 	{
 		EnsureDogExists();
+		EnsureForestExists();
 		bDogSpawned = true;
 	}
 
@@ -206,23 +208,40 @@ void ULostTrailSubsystem::EnsureDogExists()
 
 	if (CachedDog)
 	{
-		// Give the dog a visible mesh (engine sphere, scaled to dog-size)
-		UStaticMeshComponent* MeshComp = NewObject<UStaticMeshComponent>(CachedDog);
-		UStaticMesh* SphereMesh = LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Sphere"));
-		if (MeshComp && SphereMesh)
+		// Give the dog a visible mesh body (elongated cube for dog silhouette)
+		UStaticMeshComponent* BodyMesh = NewObject<UStaticMeshComponent>(CachedDog);
+		UStaticMesh* CubeMesh = LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Cube"));
+		if (BodyMesh && CubeMesh)
 		{
-			MeshComp->SetStaticMesh(SphereMesh);
-			MeshComp->SetRelativeScale3D(FVector(0.4f, 0.6f, 0.35f)); // Oval dog-like shape
-			MeshComp->SetRelativeLocation(FVector(0.f, 0.f, 10.f));
-			MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-			MeshComp->AttachToComponent(CachedDog->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
-			MeshComp->RegisterComponent();
+			BodyMesh->SetStaticMesh(CubeMesh);
+			BodyMesh->SetRelativeScale3D(FVector(0.6f, 0.25f, 0.25f)); // Long body
+			BodyMesh->SetRelativeLocation(FVector(0.f, 0.f, 15.f));
+			BodyMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			BodyMesh->AttachToComponent(CachedDog->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+			BodyMesh->RegisterComponent();
 
-			// Brown-ish color for a dog
-			UMaterialInstanceDynamic* DogMat = MeshComp->CreateDynamicMaterialInstance(0);
+			UMaterialInstanceDynamic* DogMat = BodyMesh->CreateDynamicMaterialInstance(0);
 			if (DogMat)
 			{
 				DogMat->SetVectorParameterValue(TEXT("BaseColor"), FLinearColor(0.55f, 0.35f, 0.15f, 1.0f));
+			}
+		}
+
+		// Dog head (smaller cube on front)
+		UStaticMeshComponent* HeadMesh = NewObject<UStaticMeshComponent>(CachedDog);
+		if (HeadMesh && CubeMesh)
+		{
+			HeadMesh->SetStaticMesh(CubeMesh);
+			HeadMesh->SetRelativeScale3D(FVector(0.18f, 0.18f, 0.2f));
+			HeadMesh->SetRelativeLocation(FVector(35.f, 0.f, 28.f));
+			HeadMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			HeadMesh->AttachToComponent(CachedDog->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+			HeadMesh->RegisterComponent();
+
+			UMaterialInstanceDynamic* HeadMat = HeadMesh->CreateDynamicMaterialInstance(0);
+			if (HeadMat)
+			{
+				HeadMat->SetVectorParameterValue(TEXT("BaseColor"), FLinearColor(0.5f, 0.3f, 0.12f, 1.0f));
 			}
 		}
 
@@ -254,6 +273,34 @@ void ULostTrailSubsystem::EnforceLeash()
 		const FVector TeleportTarget = PlayerLoc + FVector(150.f, 0.f, 0.f);
 		CachedDog->SetActorLocation(TeleportTarget);
 		UE_LOG(LogLostTrail, Log, TEXT("Dog leashed back (dist=%.0f, Z=%.0f)"), Distance, DogLoc.Z);
+	}
+}
+
+void ULostTrailSubsystem::EnsureForestExists()
+{
+	UWorld* World = GetWorld();
+	if (!World) return;
+
+	// Check if a populator already exists
+	for (TActorIterator<AForestWorldPopulator> It(World); It; ++It)
+	{
+		UE_LOG(LogLostTrail, Log, TEXT("ForestWorldPopulator already in level"));
+		return;
+	}
+
+	APawn* Player = UGameplayStatics::GetPlayerPawn(World, 0);
+	if (!Player) return;
+
+	FVector SpawnLoc = Player->GetActorLocation();
+	FActorSpawnParameters Params;
+	Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+	AForestWorldPopulator* Populator = World->SpawnActor<AForestWorldPopulator>(
+		AForestWorldPopulator::StaticClass(), SpawnLoc, FRotator::ZeroRotator, Params);
+
+	if (Populator)
+	{
+		UE_LOG(LogLostTrail, Log, TEXT("ForestWorldPopulator auto-spawned"));
 	}
 }
 
