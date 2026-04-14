@@ -328,6 +328,44 @@ def test_audio_bridge():
     return True, f"STT={data.get('stt', False)} TTS={data.get('tts', False)}"
 
 
+# ==================== FOREST WORLD POPULATOR TESTS ====================
+
+GAME_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
+
+
+def test_forest_populator_header():
+    """ForestWorldPopulator.h exists and is non-empty."""
+    path = os.path.join(GAME_DIR, 'Source', 'LostTrail', 'Public', 'World', 'ForestWorldPopulator.h')
+    if not os.path.exists(path):
+        return False, f"File not found: {path}"
+    size = os.path.getsize(path)
+    if size < 100:
+        return False, f"File too small ({size} bytes)"
+    return True, f"Found ({size} bytes)"
+
+
+def test_forest_populator_source():
+    """ForestWorldPopulator.cpp exists and is substantial (>5000 bytes)."""
+    path = os.path.join(GAME_DIR, 'Source', 'LostTrail', 'Private', 'World', 'ForestWorldPopulator.cpp')
+    if not os.path.exists(path):
+        return False, f"File not found: {path}"
+    size = os.path.getsize(path)
+    if size < 5000:
+        return False, f"File too small ({size} bytes) — expected >5000"
+    return True, f"Found ({size} bytes)"
+
+
+def test_forest_populator_class():
+    """AForestWorldPopulator class declared in header."""
+    path = os.path.join(GAME_DIR, 'Source', 'LostTrail', 'Public', 'World', 'ForestWorldPopulator.h')
+    if not os.path.exists(path):
+        return False, "Header file not found"
+    content = open(path, encoding='utf-8', errors='replace').read()
+    if 'AForestWorldPopulator' not in content:
+        return False, "AForestWorldPopulator class not found in header"
+    return True, "AForestWorldPopulator class declared"
+
+
 # ==================== MAIN ====================
 
 if __name__ == "__main__":
@@ -344,6 +382,12 @@ if __name__ == "__main__":
     test("Markdown stripping", test_markdown_stripping)
     test("Translator vocabulary", test_translator_vocabulary)
     test("Conversational dog commands", test_conversational_dog_commands)
+
+    print()
+    print("--- Forest World Tests ---")
+    test("ForestWorldPopulator header exists", test_forest_populator_header)
+    test("ForestWorldPopulator source exists", test_forest_populator_source)
+    test("ForestWorldPopulator class defined", test_forest_populator_class)
 
     print()
     print("--- Editor Tests (optional) ---")

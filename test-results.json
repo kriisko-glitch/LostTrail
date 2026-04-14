@@ -1,10 +1,10 @@
 {
-  "timestamp": "2026-04-13 18:39:49",
-  "passed": 7,
+  "timestamp": "2026-04-14 02:30:52",
+  "passed": 12,
   "failed": 0,
   "errors": 0,
-  "skipped": 2,
-  "total": 9,
+  "skipped": 0,
+  "total": 12,
   "tests": [
     {
       "status": "PASS",
@@ -37,14 +37,29 @@
       "message": "5/6 conversational commands correct"
     },
     {
-      "status": "SKIP",
-      "name": "Editor running",
-      "message": "<urlopen error [WinError 10061] No connection could be made because the target machine actively refused it>"
+      "status": "PASS",
+      "name": "ForestWorldPopulator header exists",
+      "message": "Found (2938 bytes)"
     },
     {
-      "status": "SKIP",
+      "status": "PASS",
+      "name": "ForestWorldPopulator source exists",
+      "message": "Found (11114 bytes)"
+    },
+    {
+      "status": "PASS",
+      "name": "ForestWorldPopulator class defined",
+      "message": "AForestWorldPopulator class declared"
+    },
+    {
+      "status": "PASS",
+      "name": "Editor running",
+      "message": "RC API up (34 routes)"
+    },
+    {
+      "status": "PASS",
       "name": "Dog in level",
-      "message": "RC exec failed"
+      "message": "{'success': True, 'command': 'import unreal\\nsubsystem = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)\\nfound = False\\nfor a in subsystem.get_all_level_actors():\\n    if a.get_class().get_name() == \"TrailDogCharacter\":\\n        comps = [c.get_class().get_name() for c in a.get_components_by_class(unreal.ActorComponent)]\\n        required = [\"TrailDogBrain\", \"CharacterMovementComponent\"]\\n        missing = [r for r in required if not any(r in c for c in comps)]\\n        if missing:\\n            print(f\"MISSING: {missing}\")\\n        else:\\n            print(f\"OK: all components ({len(comps)} total)\")\\n            found = True\\n        break\\nif not found:\\n    print(\"NO_DOG\")', 'result': 'None', 'output': [{'type': 'Info', 'output': 'NO_DOG\\r\\n'}]}"
     },
     {
       "status": "PASS",
