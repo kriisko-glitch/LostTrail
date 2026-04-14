@@ -79,15 +79,33 @@
 
 ---
 
+## Current state (2026-04-14)
+
+**All C++ done. 12/12 ai_test_player.py tests pass (offline). Needs PIE validation.**
+
+What's done:
+- TrailDogBrain: Groq API + JSON format + API key loading
+- LostTrailSubsystem: auto-spawns dog + forest + UI
+- ForestWorldPopulator (305 lines): Kenney Nature Kit mesh loading
+- ForestPredator, CampfireActor, ForageableItem, SurvivalComponent, DayNightManager
+
+**Next step**: Open LostTrail in UE5 editor:
+1. Close any other UE5 editor (Wildforge is currently open as of 2026-04-14)
+2. Open: `UnrealEditor.exe D:\Games\LostTrail\LostTrail.uproject`
+3. Once open, run `python tools/import_kenney.py` — imports Kenney Nature Kit trees/rocks to `/Game/KenneyNature/`
+4. Press Play (PIE) — subsystem should auto-spawn dog + forest
+5. Run `python tools/ai_test_player.py` — should get 12/12 pass
+
 ## Quick start for the Director
 
 1. **Read the playbook**: `C:\Users\Kris\Kriisko-Studio\docs\playbooks\llm-companion-game.md`
 2. **GDD:** `D:\Games\LostTrail\GDD.md` — full design, milestones, architecture
-3. **First task**: Fix TrailDogBrain to use Groq API + JSON response format
-4. **Second task**: Compile and fix include errors
-5. **Third task**: Write a GameMode subsystem that auto-spawns the dog
-6. **Fourth task**: Build translator UI using RebuildWidget() pattern
-7. **VRAM**: Kill llama-server before opening UE5 editor
+3. **First task**: Fix TrailDogBrain to use Groq API + JSON format (**DONE**)
+4. **Second task**: Compile and fix include errors (**DONE — all clean**)
+5. **Third task**: Write a GameMode subsystem that auto-spawns the dog (**DONE**)
+6. **Fourth task**: Build translator UI using RebuildWidget() pattern (**DONE**)
+7. **Fifth task**: PIE validation — open editor + hit Play, verify dog + forest spawn
+8. **VRAM**: Close Wildforge editor before opening LostTrail
 
 ## Source layout
 
