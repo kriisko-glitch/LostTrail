@@ -1,9 +1,9 @@
 {
-  "timestamp": "2026-04-14 02:30:52",
-  "passed": 12,
+  "timestamp": "2026-04-14 02:36:59",
+  "passed": 11,
   "failed": 0,
   "errors": 0,
-  "skipped": 0,
+  "skipped": 1,
   "total": 12,
   "tests": [
     {
@@ -52,9 +52,9 @@
       "message": "AForestWorldPopulator class declared"
     },
     {
-      "status": "PASS",
+      "status": "SKIP",
       "name": "Editor running",
-      "message": "RC API up (34 routes)"
+      "message": "Wrong project open: Wildforge (need LostTrail)"
     },
     {
       "status": "PASS",

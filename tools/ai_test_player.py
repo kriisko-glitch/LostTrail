@@ -283,12 +283,28 @@ def test_conversational_dog_commands():
 # ==================== OPTIONAL EDITOR TESTS ====================
 
 def test_editor_running():
-    """(Optional) Editor is running and RC API responsive."""
+    """(Optional) LostTrail editor is running and RC API responsive."""
     req = urllib.request.Request('http://localhost:30010/remote/info')
     resp = urllib.request.urlopen(req, timeout=3)
     data = json.loads(resp.read())
     routes = len(data.get('HttpRoutes', []))
-    return True, f"RC API up ({routes} routes)"
+    # Verify it's the LostTrail project, not another editor
+    try:
+        sys.path.insert(0, r'C:\Program Files\Epic Games\UE_5.6\Engine\Plugins\Experimental\PythonScriptPlugin\Content\Python')
+        from remote_execution import RemoteExecution
+        rpc = RemoteExecution()
+        rpc.start()
+        import time; time.sleep(0.5)
+        nodes = rpc.remote_nodes
+        rpc.stop()
+        if nodes:
+            project = nodes[0].get('project_name', 'unknown')
+            if project != 'LostTrail':
+                return False, f"Wrong project open: {project} (need LostTrail)"
+            return True, f"LostTrail editor up ({routes} routes)"
+    except Exception:
+        pass
+    return True, f"RC API up ({routes} routes — project not verified)"
 
 
 def test_dog_in_level():
