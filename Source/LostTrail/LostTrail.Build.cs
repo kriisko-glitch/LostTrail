@@ -40,6 +40,7 @@ public class LostTrail : ModuleRules
 			"LostTrail/Public/Dog",
 			"LostTrail/Public/Survival",
 			"LostTrail/Public/Translator",
+			"LostTrail/Public/UI",
 			"LostTrail/Public/World"
 		});
 	}

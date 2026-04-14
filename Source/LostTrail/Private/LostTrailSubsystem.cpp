@@ -4,6 +4,7 @@
 #include "Dog/TrailDogCharacter.h"
 #include "Dog/DogVoiceComponent.h"
 #include "Translator/TranslatorOverlayWidget.h"
+#include "UI/SurvivalHUDWidget.h"
 #include "Translator/TranslatorComponent.h"
 #include "Survival/SurvivalComponent.h"
 #include "LostTrail.h"
@@ -86,9 +87,18 @@ void ULostTrailSubsystem::Tick(float DeltaTime)
 		if (OverlayWidget)
 		{
 			OverlayWidget->AddToViewport(10);
-			bWidgetCreated = true;
 			UE_LOG(LogLostTrail, Log, TEXT("Translator overlay widget created"));
 		}
+
+		// Also create survival HUD
+		USurvivalHUDWidget* SurvivalHUD = CreateWidget<USurvivalHUDWidget>(PC, USurvivalHUDWidget::StaticClass());
+		if (SurvivalHUD)
+		{
+			SurvivalHUD->AddToViewport(9);
+			UE_LOG(LogLostTrail, Log, TEXT("Survival HUD widget created"));
+		}
+
+		bWidgetCreated = true;
 		return;
 	}
 
