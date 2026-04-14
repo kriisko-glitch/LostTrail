@@ -1,0 +1,55 @@
+{
+  "timestamp": "2026-04-13 18:33:34",
+  "passed": 7,
+  "failed": 0,
+  "errors": 0,
+  "skipped": 2,
+  "total": 9,
+  "tests": [
+    {
+      "status": "PASS",
+      "name": "Groq key exists",
+      "message": "Key loaded (56 chars)"
+    },
+    {
+      "status": "PASS",
+      "name": "Groq API JSON format",
+      "message": "action=FOLLOW, speak=WOOF"
+    },
+    {
+      "status": "PASS",
+      "name": "JSON parsing all actions",
+      "message": "8/8 JSON parses correct"
+    },
+    {
+      "status": "PASS",
+      "name": "Markdown stripping",
+      "message": "6/6 markdown strip cases correct"
+    },
+    {
+      "status": "PASS",
+      "name": "Translator vocabulary",
+      "message": "25 phrases across 4 levels verified"
+    },
+    {
+      "status": "PASS",
+      "name": "Conversational dog commands",
+      "message": "5/6 conversational commands correct"
+    },
+    {
+      "status": "SKIP",
+      "name": "Editor running",
+      "message": "<urlopen error [WinError 10061] No connection could be made because the target machine actively refused it>"
+    },
+    {
+      "status": "SKIP",
+      "name": "Dog in level",
+      "message": "RC exec failed"
+    },
+    {
+      "status": "PASS",
+      "name": "Audio bridge",
+      "message": "STT=True TTS=True"
+    }
+  ]
+}

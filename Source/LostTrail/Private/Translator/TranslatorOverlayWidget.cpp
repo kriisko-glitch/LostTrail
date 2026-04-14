@@ -269,11 +269,25 @@ void UTranslatorOverlayWidget::OnSendClicked()
 
 	if (BrainRef)
 	{
+		// Bind to OnDecision if not already bound (in case dog spawned after widget)
+		if (!BrainRef->OnDecision.IsAlreadyBound(this, &UTranslatorOverlayWidget::OnDogDecision))
+		{
+			BrainRef->OnDecision.AddDynamic(this, &UTranslatorOverlayWidget::OnDogDecision);
+		}
 		BrainRef->SendChat(Message);
 	}
 	else
 	{
-		AddMessage(TEXT("Dog"), TEXT("[dog brain offline]"), FLinearColor(0.5f, 0.5f, 0.5f, 1.0f));
+		// Try finding the brain again (dog may have spawned after widget)
+		FindComponents();
+		if (BrainRef)
+		{
+			BrainRef->SendChat(Message);
+		}
+		else
+		{
+			AddMessage(TEXT("Dog"), TEXT("[dog brain offline]"), FLinearColor(0.5f, 0.5f, 0.5f, 1.0f));
+		}
 	}
 
 	InputBox->SetText(FText::GetEmpty());
@@ -319,9 +333,17 @@ void UTranslatorOverlayWidget::OnBatteryChanged(float NormalizedBattery)
 
 void UTranslatorOverlayWidget::OnDogDecision(const FTrailDogDecision& Decision)
 {
-	// Decision broadcast from the dog brain — the translator component will handle
-	// phrase validation. But if direct chat, show the raw speak text.
-	// (Translator's OnTranslation handles vocabulary-validated phrases)
+	// Show the dog's speak phrase in the chat log and as floating text
+	if (!Decision.SpeakPhrase.IsEmpty()
+		&& !Decision.SpeakPhrase.Equals(TEXT("NONE"), ESearchCase::IgnoreCase))
+	{
+		// Show in chat log
+		const FLinearColor DogColor(0.2f, 1.0f, 0.3f, 1.0f);
+		AddMessage(TEXT("Dog"), Decision.SpeakPhrase, DogColor);
+
+		// Also show as floating translation bubble
+		ShowTranslation(Decision.SpeakPhrase, ETranslatorCategory::None);
+	}
 }
 
 void UTranslatorOverlayWidget::AddMessage(const FString& Sender, const FString& Message, const FLinearColor& Color)

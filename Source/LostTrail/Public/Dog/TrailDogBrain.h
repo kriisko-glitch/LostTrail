@@ -110,7 +110,7 @@ public:
 	FString ApiKeyFilePath = TEXT("C:/Users/Kris/Kriisko-Studio/tools/.groq_key");
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="DogBrain")
-	float PollIntervalSeconds = 0.25f;
+	float PollIntervalSeconds = 2.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="DogBrain")
 	float RequestTimeoutSeconds = 5.f;

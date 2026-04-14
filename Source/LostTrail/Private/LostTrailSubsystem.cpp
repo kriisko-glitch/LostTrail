@@ -4,18 +4,25 @@
 #include "Dog/TrailDogCharacter.h"
 #include "Dog/DogVoiceComponent.h"
 #include "Translator/TranslatorOverlayWidget.h"
+#include "Translator/TranslatorComponent.h"
+#include "Survival/SurvivalComponent.h"
 #include "LostTrail.h"
 #include "GameFramework/PlayerController.h"
 #include "Blueprint/UserWidget.h"
 #include "Engine/World.h"
 #include "EngineUtils.h"
 #include "Kismet/GameplayStatics.h"
+#include "Components/CapsuleComponent.h"
+#include "Components/StaticMeshComponent.h"
+#include "Engine/StaticMesh.h"
+#include "Materials/MaterialInstanceDynamic.h"
 
 void ULostTrailSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
 	bDogSpawned = false;
 	bWidgetCreated = false;
+	bComponentsInjected = false;
 	bEnterWasDown = false;
 	bTabWasDown = false;
 	bVKeyWasDown = false;
@@ -51,6 +58,12 @@ void ULostTrailSubsystem::Tick(float DeltaTime)
 	{
 		InitDelay -= DeltaTime;
 		return;
+	}
+
+	// Ensure player has our components (works with any player pawn, including template BPs)
+	if (!bComponentsInjected)
+	{
+		EnsurePlayerComponents();
 	}
 
 	// Auto-spawn dog
@@ -130,6 +143,33 @@ void ULostTrailSubsystem::Tick(float DeltaTime)
 	bVKeyWasDown = bVKeyDown;
 }
 
+void ULostTrailSubsystem::EnsurePlayerComponents()
+{
+	UWorld* World = GetWorld();
+	if (!World) return;
+
+	APawn* Player = UGameplayStatics::GetPlayerPawn(World, 0);
+	if (!Player) return;
+
+	// Add TranslatorComponent if missing (works with any pawn, including template BPs)
+	if (!Player->FindComponentByClass<UTranslatorComponent>())
+	{
+		UTranslatorComponent* Translator = NewObject<UTranslatorComponent>(Player, TEXT("RuntimeTranslator"));
+		Translator->RegisterComponent();
+		UE_LOG(LogLostTrail, Log, TEXT("Injected TranslatorComponent onto player pawn"));
+	}
+
+	// Add SurvivalComponent if missing
+	if (!Player->FindComponentByClass<USurvivalComponent>())
+	{
+		USurvivalComponent* Survival = NewObject<USurvivalComponent>(Player, TEXT("RuntimeSurvival"));
+		Survival->RegisterComponent();
+		UE_LOG(LogLostTrail, Log, TEXT("Injected SurvivalComponent onto player pawn"));
+	}
+
+	bComponentsInjected = true;
+}
+
 void ULostTrailSubsystem::EnsureDogExists()
 {
 	UWorld* World = GetWorld();
@@ -156,6 +196,29 @@ void ULostTrailSubsystem::EnsureDogExists()
 
 	if (CachedDog)
 	{
+		// Give the dog a visible mesh (engine sphere, scaled to dog-size)
+		UStaticMeshComponent* MeshComp = NewObject<UStaticMeshComponent>(CachedDog);
+		UStaticMesh* SphereMesh = LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Sphere"));
+		if (MeshComp && SphereMesh)
+		{
+			MeshComp->SetStaticMesh(SphereMesh);
+			MeshComp->SetRelativeScale3D(FVector(0.4f, 0.6f, 0.35f)); // Oval dog-like shape
+			MeshComp->SetRelativeLocation(FVector(0.f, 0.f, 10.f));
+			MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			MeshComp->AttachToComponent(CachedDog->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+			MeshComp->RegisterComponent();
+
+			// Brown-ish color for a dog
+			UMaterialInstanceDynamic* DogMat = MeshComp->CreateDynamicMaterialInstance(0);
+			if (DogMat)
+			{
+				DogMat->SetVectorParameterValue(TEXT("BaseColor"), FLinearColor(0.55f, 0.35f, 0.15f, 1.0f));
+			}
+		}
+
+		// Scale the whole character to dog-size
+		CachedDog->SetActorScale3D(FVector(0.6f));
+
 		UE_LOG(LogLostTrail, Log, TEXT("Dog auto-spawned near player at %s"), *SpawnLoc.ToString());
 	}
 	else

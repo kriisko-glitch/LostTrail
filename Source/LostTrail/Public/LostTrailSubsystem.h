@@ -49,11 +49,13 @@ private:
 
 	bool bDogSpawned = false;
 	bool bWidgetCreated = false;
+	bool bComponentsInjected = false;
 	bool bEnterWasDown = false;
 	bool bTabWasDown = false;
 	bool bVKeyWasDown = false;
 	float InitDelay = 0.5f;
 
+	void EnsurePlayerComponents();
 	void EnsureDogExists();
 	void EnforceLeash();
 	ATrailDogCharacter* FindDog() const;
